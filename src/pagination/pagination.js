@@ -29,7 +29,11 @@ angular.module('ui.bootstrap.pagination', [])
   };
 
   this.render = function() {
-    $scope.page = parseInt(ngModelCtrl.$viewValue, 10) || 1;
+    if (ngModelCtrl.$viewValue === self.config.lastPageAlias && angular.isDefined($scope.totalItems) && angular.isDefined($scope.totalPages)) {
+      $scope.page = $scope.totalPages;
+    } else {
+      $scope.page = parseInt(ngModelCtrl.$viewValue, 10) || 1;
+    }
   };
 
   $scope.selectPage = function(page) {
@@ -72,7 +76,8 @@ angular.module('ui.bootstrap.pagination', [])
   previousText: 'Previous',
   nextText: 'Next',
   lastText: 'Last',
-  rotate: true
+  rotate: true,
+  lastPageAlias: 'last'
 })
 
 .directive('pagination', ['$parse', 'paginationConfig', function($parse, paginationConfig) {
@@ -101,6 +106,9 @@ angular.module('ui.bootstrap.pagination', [])
           rotate = angular.isDefined(attrs.rotate) ? scope.$parent.$eval(attrs.rotate) : paginationConfig.rotate;
       scope.boundaryLinks = angular.isDefined(attrs.boundaryLinks) ? scope.$parent.$eval(attrs.boundaryLinks) : paginationConfig.boundaryLinks;
       scope.directionLinks = angular.isDefined(attrs.directionLinks) ? scope.$parent.$eval(attrs.directionLinks) : paginationConfig.directionLinks;
+      if (angular.isDefined(attrs.lastPageAlias)) {
+        paginationConfig.lastPageAlias = attrs.lastPageAlias;
+      }
 
       paginationCtrl.init(ngModelCtrl, paginationConfig);
 

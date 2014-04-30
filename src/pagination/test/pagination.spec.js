@@ -28,6 +28,11 @@ describe('pagination directive', function () {
     $rootScope.$digest();
   }
 
+  function setLastPage() {
+    $rootScope.currentPage = 'last';
+    $rootScope.$digest();
+  }
+
   it('has a "pagination" css class', function() {
     expect(element.hasClass('pagination')).toBe(true);
   });
@@ -120,6 +125,32 @@ describe('pagination directive', function () {
     $rootScope.$digest();
 
     expect($rootScope.currentPage).toBe(1);
+  });
+
+  it('changes currentPage to the last page if its value is "last"', function() {
+    setLastPage();
+    expect(getPaginationEl(5).hasClass('active')).toBe(true);
+  });
+
+  describe('initial "last page" parameter check', function () {
+    beforeEach(function() {
+      $rootScope.total = 47; // 5 pages
+      $rootScope.currentPage = 'last';
+      element = $compile('<pagination total-items="total" ng-model="currentPage"></pagination>')($rootScope);
+      $rootScope.$digest();
+    });
+
+    it('should change to last page if the initial page is "last"', function() {
+      expect(getPaginationEl(5).hasClass('active')).toBe(true);
+    });
+
+    it('should change to last page if the initial page is "last" after total of items is changed', function() {
+      $rootScope.total = 96; // 10 pages
+      $rootScope.$digest();
+      $rootScope.currentPage = 'last';
+      $rootScope.$digest();
+      expect(getPaginationEl(10).hasClass('active')).toBe(true);
+    });
   });
 
   describe('`items-per-page`', function () {
