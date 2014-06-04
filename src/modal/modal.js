@@ -57,7 +57,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
 /**
  * A helper directive for the $modal service. It creates a backdrop element.
  */
-  .directive('modalBackdrop', ['$timeout', function ($timeout) {
+  .directive('modalBackdrop', ['$timeout', '$animate', function ($timeout, $animate) {
     return {
       restrict: 'EA',
       replace: true,
@@ -65,17 +65,20 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
       link: function (scope, element, attrs) {
         scope.backdropClass = attrs.backdropClass || '';
 
-        scope.animate = false;
-
+        // scope.animate = false;
+        $animate.addClass(element, 'in');
         //trigger CSS transitions
-        $timeout(function () {
-          scope.animate = true;
-        });
+        if (!$animate.enabled()) {
+          $timeout(function () {
+            element.addClass('in');
+            // scope.animate = true;
+          });
+        }
       }
     };
   }])
 
-  .directive('modalWindow', ['$modalStack', '$timeout', function ($modalStack, $timeout) {
+  .directive('modalWindow', ['$modalStack', '$timeout', '$animate', function ($modalStack, $timeout, $animate) {
     return {
       restrict: 'EA',
       scope: {
@@ -91,9 +94,8 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
         element.addClass(attrs.windowClass || '');
         scope.size = attrs.size;
 
+        $animate.addClass(element, 'in');
         $timeout(function () {
-          // trigger CSS transitions
-          scope.animate = true;
           // focus a freshly-opened modal
           element[0].focus();
         });
@@ -121,8 +123,8 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
     };
   })
 
-  .factory('$modalStack', ['$transition', '$timeout', '$document', '$compile', '$rootScope', '$$stackedMap',
-    function ($transition, $timeout, $document, $compile, $rootScope, $$stackedMap) {
+  .factory('$modalStack', ['$transition', '$timeout', '$document', '$compile', '$rootScope', '$$stackedMap', '$animate',
+    function ($transition, $timeout, $document, $compile, $rootScope, $$stackedMap, $animate) {
 
       var OPENED_MODAL_CLASS = 'modal-open';
 
@@ -178,7 +180,8 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
 
       function removeAfterAnimate(domEl, scope, emulateTime, done) {
         // Closing animation
-        scope.animate = false;
+        // scope.animate = false;
+        $animate.removeClass(domEl, 'in');
 
         var transitionEndEventName = $transition.transitionEndEventName;
         if (transitionEndEventName) {
