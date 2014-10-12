@@ -57,7 +57,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
 /**
  * A helper directive for the $modal service. It creates a backdrop element.
  */
-  .directive('modalBackdrop', ['$timeout', '$animate', function ($timeout, $animate) {
+  .directive('modalBackdrop', ['$timeout', function ($timeout) {
     return {
       restrict: 'EA',
       replace: true,
@@ -65,20 +65,17 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
       link: function (scope, element, attrs) {
         scope.backdropClass = attrs.backdropClass || '';
 
-        // scope.animate = false;
-        $animate.addClass(element, 'in');
+        scope.animate = false;
+
         //trigger CSS transitions
-        if (!$animate.enabled()) {
-          $timeout(function () {
-            element.addClass('in');
-            // scope.animate = true;
-          });
-        }
+        $timeout(function () {
+          scope.animate = true;
+        });
       }
     };
   }])
 
-  .directive('modalWindow', ['$modalStack', '$timeout', '$animate', function ($modalStack, $timeout, $animate) {
+  .directive('modalWindow', ['$modalStack', '$timeout', function ($modalStack, $timeout) {
     return {
       restrict: 'EA',
       scope: {
@@ -94,10 +91,21 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
         element.addClass(attrs.windowClass || '');
         scope.size = attrs.size;
 
-        $animate.addClass(element, 'in');
         $timeout(function () {
-          // focus a freshly-opened modal
-          element[0].focus();
+          // trigger CSS transitions
+          scope.animate = true;
+
+          /**
+           * Auto-focusing of a freshly-opened modal element causes any child elements
+           * with the autofocus attribute to loose focus. This is an issue on touch
+           * based devices which will show and then hide the onscreen keyboard.
+           * Attempts to refocus the autofocus element via JavaScript will not reopen
+           * the onscreen keyboard. Fixed by updated the focusing logic to only autofocus
+           * the modal element if the modal does not contain an autofocus element.
+           */
+          if (!element[0].querySelectorAll('[autofocus]').length) {
+            element[0].focus();
+          }
         });
 
         scope.close = function (evt) {
@@ -123,8 +131,8 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
     };
   })
 
-  .factory('$modalStack', ['$transition', '$timeout', '$document', '$compile', '$rootScope', '$$stackedMap', '$animate',
-    function ($transition, $timeout, $document, $compile, $rootScope, $$stackedMap, $animate) {
+  .factory('$modalStack', ['$transition', '$timeout', '$document', '$compile', '$rootScope', '$$stackedMap',
+    function ($transition, $timeout, $document, $compile, $rootScope, $$stackedMap) {
 
       var OPENED_MODAL_CLASS = 'modal-open';
 
@@ -180,8 +188,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
 
       function removeAfterAnimate(domEl, scope, emulateTime, done) {
         // Closing animation
-        // scope.animate = false;
-        $animate.removeClass(domEl, 'in');
+        scope.animate = false;
 
         var transitionEndEventName = $transition.transitionEndEventName;
         if (transitionEndEventName) {

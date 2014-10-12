@@ -2,8 +2,8 @@
 
 ***
 
-[![Build Status](https://secure.travis-ci.org/angular-ui/bootstrap.png)](http://travis-ci.org/angular-ui/bootstrap)
-[![devDependency Status](https://david-dm.org/angular-ui/bootstrap/dev-status.png?branch=master)](https://david-dm.org/angular-ui/bootstrap#info=devDependencies)
+[![Build Status](https://secure.travis-ci.org/angular-ui/bootstrap.svg)](http://travis-ci.org/angular-ui/bootstrap)
+[![devDependency Status](https://david-dm.org/angular-ui/bootstrap/dev-status.svg?branch=master)](https://david-dm.org/angular-ui/bootstrap#info=devDependencies)
 
 ## Demo
 
@@ -137,8 +137,8 @@ html2js: {
     base: '.',
     module: 'ui-templates',
     rename: function (modulePath) {
-      var moduleName = modulePath.replace('app/views/partials/ui-bootstrap-tpls/', '').replace('.html', '');
-      return 'template' + '/' + moduleName + '.html';
+      var moduleName = modulePath.replace('app/views/partials/ui-bootstrap-tpls/', '');
+      return 'template/' + moduleName;
     }
   },
   main: {
